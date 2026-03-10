@@ -1,0 +1,17 @@
+{
+  "name": "Sprint Capacity Calculator",
+  "short_name": "Capacity Calc",
+  "description": "Calculate your team's available development capacity for sprint planning",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6600",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
