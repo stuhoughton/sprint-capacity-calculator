@@ -14,7 +14,7 @@ export function ExportButton() {
   const handleExport = () => {
     try {
       const summary = calculateTeamCapacitySummary(state.teamMembers, state.config.baseHours);
-      const csv = generateCSV(summary);
+      const csv = generateCSV(summary, state.config.storyPointScale);
       downloadCSV(csv);
     } catch (error) {
       console.error('Failed to export CSV:', error);
