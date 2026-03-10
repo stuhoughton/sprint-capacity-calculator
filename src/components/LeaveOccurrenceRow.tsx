@@ -50,6 +50,11 @@ export const LeaveOccurrenceRow: React.FC<LeaveOccurrenceRowProps> = ({
     }
   };
 
+  // Sync editingHours with the hours prop when it changes
+  React.useEffect(() => {
+    setEditingHours(hours.toString());
+  }, [hours]);
+
   const handleEditInCalculator = () => {
     onEdit?.();
   };
