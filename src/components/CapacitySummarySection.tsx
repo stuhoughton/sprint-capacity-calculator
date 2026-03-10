@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useAppContext } from '../context';
+import { StoryPointScale } from '../types';
 import { calculateTeamCapacitySummary } from '../utils/calculations';
 import { convertHoursToStoryPoints } from '../utils/storyPoints';
 import { CapacityTable } from './CapacityTable';
@@ -72,7 +73,7 @@ export const CapacitySummarySection: React.FC = () => {
         <CapacityTable 
           summary={summary} 
           viewInPoints={viewInPoints}
-          storyPointScale={state.config.storyPointScale}
+          storyPointScale={state.config.storyPointScale as StoryPointScale}
         />
       )}
     </div>

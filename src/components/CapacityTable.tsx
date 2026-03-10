@@ -1,11 +1,11 @@
 import React from 'react';
-import { TeamCapacitySummary } from '../types';
+import { TeamCapacitySummary, StoryPointScale } from '../types';
 import { convertHoursToHoursAndMinutes, convertHoursToTotalStoryPoints } from '../utils/storyPoints';
 
 interface CapacityTableProps {
   summary: TeamCapacitySummary;
   viewInPoints?: boolean;
-  storyPointScale?: Record<string, number>;
+  storyPointScale?: StoryPointScale;
 }
 
 /**
