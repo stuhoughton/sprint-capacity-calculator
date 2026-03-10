@@ -4,6 +4,7 @@ import { TeamMember } from '../types';
 import { LeaveOccurrenceRow } from './LeaveOccurrenceRow';
 import { MeetingOccurrenceRow } from './MeetingOccurrenceRow';
 import { LeaveCalculatorModal } from './LeaveCalculatorModal';
+import { MeetingCalculatorModal } from './MeetingCalculatorModal';
 import { validateTeamMemberName } from '../utils/validation';
 
 interface TeamMemberCardProps {
@@ -19,6 +20,7 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
   const { dispatch } = useAppContext();
   const [nameError, setNameError] = useState<string>('');
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+  const [isMeetingCalculatorOpen, setIsMeetingCalculatorOpen] = useState(false);
 
   const totalLeaveHours = member.leaveOccurrences.reduce(
     (sum, entry) => sum + entry.hours,
@@ -63,6 +65,13 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
     dispatch({
       type: 'ADD_MEETING',
       payload: { memberId: member.id, hours: 0 },
+    });
+  };
+
+  const handleAddMeetingFromCalculator = (hours: number) => {
+    dispatch({
+      type: 'ADD_MEETING',
+      payload: { memberId: member.id, hours },
     });
   };
 
@@ -178,13 +187,30 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
             ))
           )}
         </div>
-        <button
-          onClick={handleAddMeeting}
-          className="w-full px-4 py-2 md:py-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded border border-blue-200 font-medium text-sm transition-colors min-h-[44px] md:min-h-auto flex items-center justify-center"
-          aria-label="Add meeting occurrence"
-        >
-          + Add Meeting
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleAddMeeting}
+            className="flex-1 px-4 py-2 md:py-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded border border-blue-200 font-medium text-sm transition-colors min-h-[44px] md:min-h-auto flex items-center justify-center"
+            aria-label="Add meeting occurrence"
+          >
+            + Add Meeting
+          </button>
+          <button
+            onClick={() => setIsMeetingCalculatorOpen(true)}
+            className="px-4 py-2 md:py-3 bg-green-50 text-green-600 hover:bg-green-100 rounded border border-green-200 font-medium text-sm transition-colors min-h-[44px] md:min-h-auto flex items-center justify-center"
+            aria-label="Open meeting calculator"
+            title="Calculate meeting hours"
+          >
+            🧮
+          </button>
+        </div>
+
+        {/* Meeting Calculator Modal */}
+        <MeetingCalculatorModal
+          isOpen={isMeetingCalculatorOpen}
+          onClose={() => setIsMeetingCalculatorOpen(false)}
+          onAddMeeting={handleAddMeetingFromCalculator}
+        />
       </div>
     </div>
   );

@@ -18,3 +18,4 @@ export { MainContainer } from './MainContainer';
 export { default as TimeConversionGlossary } from './TimeConversionGlossary';
 export { InfoSection } from './InfoSection';
 export { LeaveCalculatorModal } from './LeaveCalculatorModal';
+export { MeetingCalculatorModal } from './MeetingCalculatorModal';

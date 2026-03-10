@@ -16,6 +16,7 @@ export const LeaveCalculatorModal: React.FC<LeaveCalculatorModalProps> = ({
   const [leaveType, setLeaveType] = useState<LeaveType>('fullDay');
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set());
   const [customHours, setCustomHours] = useState('');
+  const [weeks, setWeeks] = useState('1');
 
   const dayHours: Record<string, number> = {
     Monday: 7.67,
@@ -38,7 +39,8 @@ export const LeaveCalculatorModal: React.FC<LeaveCalculatorModalProps> = ({
       return sum + (leaveType === 'partDay' ? dayHour / 2 : dayHour);
     }, 0);
 
-    return totalHours;
+    const weeksMultiplier = parseFloat(weeks) || 1;
+    return totalHours * weeksMultiplier;
   };
 
   const toggleDay = (day: string) => {
@@ -64,6 +66,7 @@ export const LeaveCalculatorModal: React.FC<LeaveCalculatorModalProps> = ({
     setLeaveType('fullDay');
     setSelectedDays(new Set());
     setCustomHours('');
+    setWeeks('1');
   };
 
   if (!isOpen) return null;
@@ -116,6 +119,21 @@ export const LeaveCalculatorModal: React.FC<LeaveCalculatorModalProps> = ({
                 </label>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Number of Weeks */}
+        {leaveType !== 'customHours' && (
+          <div>
+            <label className="text-sm font-semibold text-gray-700">Number of Weeks</label>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              value={weeks}
+              onChange={(e) => setWeeks(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mt-1"
+            />
           </div>
         )}
 
