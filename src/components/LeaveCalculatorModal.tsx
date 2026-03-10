@@ -4,6 +4,8 @@ interface LeaveCalculatorModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddLeave: (hours: number) => void;
+  editingLeaveHours?: number;
+  onUpdateLeave?: (hours: number) => void;
 }
 
 type LeaveType = 'fullDay' | 'partDay' | 'customHours';
@@ -12,11 +14,15 @@ export const LeaveCalculatorModal: React.FC<LeaveCalculatorModalProps> = ({
   isOpen,
   onClose,
   onAddLeave,
+  editingLeaveHours,
+  onUpdateLeave,
 }) => {
   const [leaveType, setLeaveType] = useState<LeaveType>('fullDay');
   const [selectedDays, setSelectedDays] = useState<Set<string>>(new Set());
   const [customHours, setCustomHours] = useState('');
   const [weeks, setWeeks] = useState('1');
+
+  const isEditing = editingLeaveHours !== undefined;
 
   const dayHours: Record<string, number> = {
     Monday: 7.67,
@@ -58,7 +64,16 @@ export const LeaveCalculatorModal: React.FC<LeaveCalculatorModalProps> = ({
     if (hours > 0) {
       onAddLeave(hours);
       resetForm();
-      onClose();
+      setTimeout(() => onClose(), 0);
+    }
+  };
+
+  const handleUpdateLeave = () => {
+    const hours = calculateHours();
+    if (hours > 0 && onUpdateLeave) {
+      onUpdateLeave(hours);
+      resetForm();
+      setTimeout(() => onClose(), 0);
     }
   };
 
@@ -76,7 +91,9 @@ export const LeaveCalculatorModal: React.FC<LeaveCalculatorModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">Leave Calculator</h2>
+        <h2 className="text-lg font-bold text-gray-900">
+          {isEditing ? 'Edit Leave' : 'Leave Calculator'}
+        </h2>
 
         {/* Leave Type Selection */}
         <div className="space-y-2">
@@ -168,11 +185,11 @@ export const LeaveCalculatorModal: React.FC<LeaveCalculatorModalProps> = ({
             Cancel
           </button>
           <button
-            onClick={handleAddLeave}
+            onClick={isEditing ? handleUpdateLeave : handleAddLeave}
             disabled={totalHours === 0}
             className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            Add Leave
+            {isEditing ? 'Update Leave' : 'Add Leave'}
           </button>
         </div>
       </div>

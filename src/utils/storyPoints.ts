@@ -71,3 +71,54 @@ export function convertStoryPointsToHours(
 ): number {
   return scale[points as unknown as keyof StoryPointScale] ?? 0;
 }
+
+/**
+ * Converts total hours to total story points based on the highest story point value.
+ * Uses the largest story point value as the base unit for calculation.
+ *
+ * @param hours - The number of hours to convert
+ * @param scale - The story point scale mapping
+ * @returns The total story points available
+ *
+ * @example
+ * const scale = { '1': 1, '3': 4, '5': 8, '8': 12, '10': 16 };
+ * convertHoursToTotalStoryPoints(41.41, scale); // Returns ~25.88 (41.41 / 16 * 10)
+ */
+export function convertHoursToTotalStoryPoints(
+  hours: number,
+  scale: StoryPointScale
+): number {
+  // Get the highest story point value and its hour equivalent
+  const points = Object.keys(scale)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  if (points.length === 0) {
+    return 0;
+  }
+
+  const highestPoint = points[0];
+  const hoursPerHighestPoint = scale[highestPoint as unknown as keyof StoryPointScale];
+
+  if (hoursPerHighestPoint === 0) {
+    return 0;
+  }
+
+  // Calculate total story points: (hours / hoursPerHighestPoint) * highestPoint
+  return (hours / hoursPerHighestPoint) * highestPoint;
+}
+
+/**
+ * Converts decimal hours to hours and minutes format
+ *
+ * @param hours - The decimal hours to convert
+ * @returns Object with hours and minutes
+ *
+ * @example
+ * convertHoursToHoursAndMinutes(41.41); // Returns { hours: 41, minutes: 25 }
+ */
+export function convertHoursToHoursAndMinutes(hours: number): { hours: number; minutes: number } {
+  const wholeHours = Math.floor(hours);
+  const minutes = Math.round((hours - wholeHours) * 60);
+  return { hours: wholeHours, minutes };
+}

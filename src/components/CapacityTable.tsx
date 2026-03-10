@@ -1,9 +1,11 @@
 import React from 'react';
 import { TeamCapacitySummary } from '../types';
+import { convertHoursToHoursAndMinutes, convertHoursToTotalStoryPoints } from '../utils/storyPoints';
 
 interface CapacityTableProps {
   summary: TeamCapacitySummary;
   viewInPoints?: boolean;
+  storyPointScale?: Record<string, number>;
 }
 
 /**
@@ -16,26 +18,27 @@ interface CapacityTableProps {
 export const CapacityTable: React.FC<CapacityTableProps> = ({
   summary,
   viewInPoints = false,
+  storyPointScale,
 }) => {
-  const formatValue = (value: number) => {
-    return value.toFixed(2);
+  const formatHours = (hours: number) => {
+    if (viewInPoints && storyPointScale) {
+      const totalPoints = convertHoursToTotalStoryPoints(hours, storyPointScale);
+      return Math.floor(totalPoints).toString();
+    }
+    return hours.toFixed(2);
+  };
+
+  const formatHoursWithMinutes = (hours: number) => {
+    const { hours: h, minutes: m } = convertHoursToHoursAndMinutes(hours);
+    return `${h}h ${m}m`;
   };
 
   const getCapacityValue = (member: typeof summary.members[0]) => {
-    if (viewInPoints && member.availableCapacityInPoints !== undefined) {
-      return member.availableCapacityInPoints.toString();
-    }
-    return formatValue(member.availableCapacity);
+    return formatHours(member.availableCapacity);
   };
 
   const getTotalCapacityValue = () => {
-    if (
-      viewInPoints &&
-      summary.totals.totalAvailableCapacityInPoints !== undefined
-    ) {
-      return summary.totals.totalAvailableCapacityInPoints.toString();
-    }
-    return formatValue(summary.totals.totalAvailableCapacity);
+    return formatHours(summary.totals.totalAvailableCapacity);
   };
 
   const capacityUnit = viewInPoints ? 'pts' : 'h';
@@ -53,34 +56,47 @@ export const CapacityTable: React.FC<CapacityTableProps> = ({
               <h3 className="font-semibold text-gray-900 text-sm">
                 {member.name}
               </h3>
-              <span className="text-lg font-bold text-blue-600">
-                {getCapacityValue(member)}{capacityUnit}
-              </span>
+              <div className="text-right">
+                <span className="text-lg font-bold text-blue-600">
+                  {getCapacityValue(member)}{capacityUnit}
+                </span>
+                {!viewInPoints && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formatHoursWithMinutes(member.availableCapacity)}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
                 <span className="text-gray-600">Base Hours</span>
                 <p className="font-medium text-gray-900">
-                  {formatValue(member.baseHours)}h
+                  {member.baseHours.toFixed(2)}h
                 </p>
+                <p className="text-gray-500">{formatHoursWithMinutes(member.baseHours)}</p>
               </div>
               <div>
                 <span className="text-gray-600">Leave Hours</span>
                 <p className="font-medium text-gray-900">
-                  {formatValue(member.totalLeaveHours)}h
+                  {member.totalLeaveHours.toFixed(2)}h
                 </p>
+                <p className="text-gray-500">{formatHoursWithMinutes(member.totalLeaveHours)}</p>
               </div>
               <div>
                 <span className="text-gray-600">Meeting Hours</span>
                 <p className="font-medium text-gray-900">
-                  {formatValue(member.totalMeetingHours)}h
+                  {member.totalMeetingHours.toFixed(2)}h
                 </p>
+                <p className="text-gray-500">{formatHoursWithMinutes(member.totalMeetingHours)}</p>
               </div>
               <div>
                 <span className="text-gray-600">Available</span>
                 <p className="font-medium text-blue-600">
                   {getCapacityValue(member)}{capacityUnit}
                 </p>
+                {!viewInPoints && (
+                  <p className="text-gray-500">{formatHoursWithMinutes(member.availableCapacity)}</p>
+                )}
               </div>
             </div>
           </div>
@@ -90,34 +106,47 @@ export const CapacityTable: React.FC<CapacityTableProps> = ({
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4 shadow-sm">
           <div className="flex justify-between items-start mb-3">
             <h3 className="font-bold text-gray-900 text-sm">TOTAL</h3>
-            <span className="text-lg font-bold text-blue-700">
-              {getTotalCapacityValue()}{capacityUnit}
-            </span>
+            <div className="text-right">
+              <span className="text-lg font-bold text-blue-700">
+                {getTotalCapacityValue()}{capacityUnit}
+              </span>
+              {!viewInPoints && (
+                <p className="text-xs text-gray-600 mt-1">
+                  {formatHoursWithMinutes(summary.totals.totalAvailableCapacity)}
+                </p>
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
               <span className="text-gray-600">Base Hours</span>
               <p className="font-medium text-gray-900">
-                {formatValue(summary.totals.baseHours)}h
+                {summary.totals.baseHours.toFixed(2)}h
               </p>
+              <p className="text-gray-500">{formatHoursWithMinutes(summary.totals.baseHours)}</p>
             </div>
             <div>
               <span className="text-gray-600">Leave Hours</span>
               <p className="font-medium text-gray-900">
-                {formatValue(summary.totals.totalLeaveHours)}h
+                {summary.totals.totalLeaveHours.toFixed(2)}h
               </p>
+              <p className="text-gray-500">{formatHoursWithMinutes(summary.totals.totalLeaveHours)}</p>
             </div>
             <div>
               <span className="text-gray-600">Meeting Hours</span>
               <p className="font-medium text-gray-900">
-                {formatValue(summary.totals.totalMeetingHours)}h
+                {summary.totals.totalMeetingHours.toFixed(2)}h
               </p>
+              <p className="text-gray-500">{formatHoursWithMinutes(summary.totals.totalMeetingHours)}</p>
             </div>
             <div>
               <span className="text-gray-600">Available</span>
               <p className="font-medium text-blue-700">
                 {getTotalCapacityValue()}{capacityUnit}
               </p>
+              {!viewInPoints && (
+                <p className="text-gray-500">{formatHoursWithMinutes(summary.totals.totalAvailableCapacity)}</p>
+              )}
             </div>
           </div>
         </div>
@@ -157,16 +186,22 @@ export const CapacityTable: React.FC<CapacityTableProps> = ({
                   {member.name}
                 </td>
                 <td className="px-4 py-3 text-right text-gray-700 text-sm">
-                  {formatValue(member.baseHours)}h
+                  <div>{member.baseHours.toFixed(2)}h</div>
+                  <div className="text-xs text-gray-500">{formatHoursWithMinutes(member.baseHours)}</div>
                 </td>
                 <td className="px-4 py-3 text-right text-gray-700 text-sm">
-                  {formatValue(member.totalLeaveHours)}h
+                  <div>{member.totalLeaveHours.toFixed(2)}h</div>
+                  <div className="text-xs text-gray-500">{formatHoursWithMinutes(member.totalLeaveHours)}</div>
                 </td>
                 <td className="px-4 py-3 text-right text-gray-700 text-sm">
-                  {formatValue(member.totalMeetingHours)}h
+                  <div>{member.totalMeetingHours.toFixed(2)}h</div>
+                  <div className="text-xs text-gray-500">{formatHoursWithMinutes(member.totalMeetingHours)}</div>
                 </td>
                 <td className="px-4 py-3 text-right font-semibold text-blue-600 text-sm">
-                  {getCapacityValue(member)}{capacityUnit}
+                  <div>{getCapacityValue(member)}{capacityUnit}</div>
+                  {!viewInPoints && (
+                    <div className="text-xs text-gray-500">{formatHoursWithMinutes(member.availableCapacity)}</div>
+                  )}
                 </td>
               </tr>
             ))}
@@ -175,16 +210,22 @@ export const CapacityTable: React.FC<CapacityTableProps> = ({
             <tr className="bg-gradient-to-r from-blue-50 to-blue-100 border-t-2 border-blue-200 font-bold">
               <td className="px-4 py-3 text-gray-900 text-sm">TOTAL</td>
               <td className="px-4 py-3 text-right text-gray-900 text-sm">
-                {formatValue(summary.totals.baseHours)}h
+                <div>{summary.totals.baseHours.toFixed(2)}h</div>
+                <div className="text-xs font-normal text-gray-600">{formatHoursWithMinutes(summary.totals.baseHours)}</div>
               </td>
               <td className="px-4 py-3 text-right text-gray-900 text-sm">
-                {formatValue(summary.totals.totalLeaveHours)}h
+                <div>{summary.totals.totalLeaveHours.toFixed(2)}h</div>
+                <div className="text-xs font-normal text-gray-600">{formatHoursWithMinutes(summary.totals.totalLeaveHours)}</div>
               </td>
               <td className="px-4 py-3 text-right text-gray-900 text-sm">
-                {formatValue(summary.totals.totalMeetingHours)}h
+                <div>{summary.totals.totalMeetingHours.toFixed(2)}h</div>
+                <div className="text-xs font-normal text-gray-600">{formatHoursWithMinutes(summary.totals.totalMeetingHours)}</div>
               </td>
               <td className="px-4 py-3 text-right text-blue-700 text-sm">
-                {getTotalCapacityValue()}{capacityUnit}
+                <div>{getTotalCapacityValue()}{capacityUnit}</div>
+                {!viewInPoints && (
+                  <div className="text-xs font-normal text-gray-600">{formatHoursWithMinutes(summary.totals.totalAvailableCapacity)}</div>
+                )}
               </td>
             </tr>
           </tfoot>

@@ -21,6 +21,11 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
   const [nameError, setNameError] = useState<string>('');
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [isMeetingCalculatorOpen, setIsMeetingCalculatorOpen] = useState(false);
+  const [editingLeaveId, setEditingLeaveId] = useState<string | null>(null);
+  const [editingLeaveHours, setEditingLeaveHours] = useState<number | undefined>();
+  const [editingMeetingId, setEditingMeetingId] = useState<string | null>(null);
+  const [editingMeetingHours, setEditingMeetingHours] = useState<number | undefined>();
+  const [editingMeetingName, setEditingMeetingName] = useState<string | undefined>();
 
   const totalLeaveHours = member.leaveOccurrences.reduce(
     (sum, entry) => sum + entry.hours,
@@ -55,10 +60,19 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
   };
 
   const handleAddLeaveFromCalculator = (hours: number) => {
-    dispatch({
-      type: 'ADD_LEAVE',
-      payload: { memberId: member.id, hours },
-    });
+    if (editingLeaveId) {
+      dispatch({
+        type: 'UPDATE_LEAVE',
+        payload: { memberId: member.id, leaveId: editingLeaveId, hours },
+      });
+      setEditingLeaveId(null);
+      setEditingLeaveHours(undefined);
+    } else {
+      dispatch({
+        type: 'ADD_LEAVE',
+        payload: { memberId: member.id, hours },
+      });
+    }
   };
 
   const handleAddMeeting = () => {
@@ -68,11 +82,21 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
     });
   };
 
-  const handleAddMeetingFromCalculator = (hours: number) => {
-    dispatch({
-      type: 'ADD_MEETING',
-      payload: { memberId: member.id, hours },
-    });
+  const handleAddMeetingFromCalculator = (hours: number, name?: string) => {
+    if (editingMeetingId) {
+      dispatch({
+        type: 'UPDATE_MEETING',
+        payload: { memberId: member.id, meetingId: editingMeetingId, hours, name },
+      });
+      setEditingMeetingId(null);
+      setEditingMeetingHours(undefined);
+      setEditingMeetingName(undefined);
+    } else {
+      dispatch({
+        type: 'ADD_MEETING',
+        payload: { memberId: member.id, hours, name },
+      });
+    }
   };
 
   const handleDeleteMember = () => {
@@ -133,6 +157,11 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
                 memberId={member.id}
                 leaveId={leave.id}
                 hours={leave.hours}
+                onEdit={() => {
+                  setEditingLeaveId(leave.id);
+                  setEditingLeaveHours(leave.hours);
+                  setIsCalculatorOpen(true);
+                }}
               />
             ))
           )}
@@ -158,8 +187,14 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
         {/* Leave Calculator Modal */}
         <LeaveCalculatorModal
           isOpen={isCalculatorOpen}
-          onClose={() => setIsCalculatorOpen(false)}
+          onClose={() => {
+            setIsCalculatorOpen(false);
+            setEditingLeaveId(null);
+            setEditingLeaveHours(undefined);
+          }}
           onAddLeave={handleAddLeaveFromCalculator}
+          editingLeaveHours={editingLeaveHours}
+          onUpdateLeave={handleAddLeaveFromCalculator}
         />
       </div>
 
@@ -183,6 +218,13 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
                 memberId={member.id}
                 meetingId={meeting.id}
                 hours={meeting.hours}
+                name={meeting.name}
+                onEdit={() => {
+                  setEditingMeetingId(meeting.id);
+                  setEditingMeetingHours(meeting.hours);
+                  setEditingMeetingName(meeting.name);
+                  setIsMeetingCalculatorOpen(true);
+                }}
               />
             ))
           )}
@@ -208,8 +250,16 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
         {/* Meeting Calculator Modal */}
         <MeetingCalculatorModal
           isOpen={isMeetingCalculatorOpen}
-          onClose={() => setIsMeetingCalculatorOpen(false)}
+          onClose={() => {
+            setIsMeetingCalculatorOpen(false);
+            setEditingMeetingId(null);
+            setEditingMeetingHours(undefined);
+            setEditingMeetingName(undefined);
+          }}
           onAddMeeting={handleAddMeetingFromCalculator}
+          editingMeetingHours={editingMeetingHours}
+          editingMeetingName={editingMeetingName}
+          onUpdateMeeting={handleAddMeetingFromCalculator}
         />
       </div>
     </div>

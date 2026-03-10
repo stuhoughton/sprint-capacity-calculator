@@ -9,6 +9,7 @@ export interface TimeEntry {
   id: string;
   hours: number;
   description?: string;
+  name?: string;
 }
 
 /**
@@ -88,8 +89,8 @@ export type AppAction =
   | { type: 'UPDATE_LEAVE'; payload: { memberId: string; leaveId: string; hours: number } }
   | { type: 'REMOVE_LEAVE'; payload: { memberId: string; leaveId: string } }
   // Meeting Actions
-  | { type: 'ADD_MEETING'; payload: { memberId: string; hours: number } }
-  | { type: 'UPDATE_MEETING'; payload: { memberId: string; meetingId: string; hours: number } }
+  | { type: 'ADD_MEETING'; payload: { memberId: string; hours: number; name?: string } }
+  | { type: 'UPDATE_MEETING'; payload: { memberId: string; meetingId: string; hours: number; name?: string } }
   | { type: 'REMOVE_MEETING'; payload: { memberId: string; meetingId: string } }
   // Configuration Actions
   | { type: 'UPDATE_BASE_HOURS'; payload: { baseHours: number } }

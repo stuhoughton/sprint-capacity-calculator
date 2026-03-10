@@ -69,7 +69,11 @@ export const CapacitySummarySection: React.FC = () => {
           </p>
         </div>
       ) : (
-        <CapacityTable summary={summary} viewInPoints={viewInPoints} />
+        <CapacityTable 
+          summary={summary} 
+          viewInPoints={viewInPoints}
+          storyPointScale={state.config.storyPointScale}
+        />
       )}
     </div>
   );

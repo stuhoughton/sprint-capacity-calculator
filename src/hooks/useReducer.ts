@@ -128,6 +128,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
                   {
                     id: generateId(),
                     hours: action.payload.hours,
+                    name: action.payload.name,
                   },
                 ],
               }
@@ -145,7 +146,11 @@ export function appReducer(state: AppState, action: AppAction): AppState {
                 ...member,
                 meetingOccurrences: member.meetingOccurrences.map((meeting) =>
                   meeting.id === action.payload.meetingId
-                    ? { ...meeting, hours: action.payload.hours }
+                    ? { 
+                        ...meeting, 
+                        hours: action.payload.hours,
+                        name: action.payload.name,
+                      }
                     : meeting
                 ),
               }
