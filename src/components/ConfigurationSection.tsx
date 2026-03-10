@@ -52,7 +52,7 @@ export const ConfigurationSection: React.FC = () => {
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-1">Configuration</h2>
           <p className="text-gray-600 text-sm">
-            Customize base hours and story point scale
+            Customise base hours and story point scale
           </p>
         </div>
         <BaseHoursInput />

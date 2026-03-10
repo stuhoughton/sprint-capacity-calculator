@@ -3,6 +3,7 @@ import { useAppContext } from '../context';
 import { TeamMember } from '../types';
 import { LeaveOccurrenceRow } from './LeaveOccurrenceRow';
 import { MeetingOccurrenceRow } from './MeetingOccurrenceRow';
+import { LeaveCalculatorModal } from './LeaveCalculatorModal';
 import { validateTeamMemberName } from '../utils/validation';
 
 interface TeamMemberCardProps {
@@ -17,6 +18,7 @@ interface TeamMemberCardProps {
 export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
   const { dispatch } = useAppContext();
   const [nameError, setNameError] = useState<string>('');
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
 
   const totalLeaveHours = member.leaveOccurrences.reduce(
     (sum, entry) => sum + entry.hours,
@@ -47,6 +49,13 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
     dispatch({
       type: 'ADD_LEAVE',
       payload: { memberId: member.id, hours: 0 },
+    });
+  };
+
+  const handleAddLeaveFromCalculator = (hours: number) => {
+    dispatch({
+      type: 'ADD_LEAVE',
+      payload: { memberId: member.id, hours },
     });
   };
 
@@ -119,13 +128,30 @@ export const TeamMemberCard: React.FC<TeamMemberCardProps> = ({ member }) => {
             ))
           )}
         </div>
-        <button
-          onClick={handleAddLeave}
-          className="w-full px-4 py-2 md:py-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded border border-blue-200 font-medium text-sm transition-colors min-h-[44px] md:min-h-auto flex items-center justify-center"
-          aria-label="Add leave occurrence"
-        >
-          + Add Leave
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleAddLeave}
+            className="flex-1 px-4 py-2 md:py-3 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded border border-blue-200 font-medium text-sm transition-colors min-h-[44px] md:min-h-auto flex items-center justify-center"
+            aria-label="Add leave occurrence"
+          >
+            + Add Leave
+          </button>
+          <button
+            onClick={() => setIsCalculatorOpen(true)}
+            className="px-4 py-2 md:py-3 bg-green-50 text-green-600 hover:bg-green-100 rounded border border-green-200 font-medium text-sm transition-colors min-h-[44px] md:min-h-auto flex items-center justify-center"
+            aria-label="Open leave calculator"
+            title="Calculate leave hours"
+          >
+            🧮
+          </button>
+        </div>
+
+        {/* Leave Calculator Modal */}
+        <LeaveCalculatorModal
+          isOpen={isCalculatorOpen}
+          onClose={() => setIsCalculatorOpen(false)}
+          onAddLeave={handleAddLeaveFromCalculator}
+        />
       </div>
 
       {/* Meeting Section */}
